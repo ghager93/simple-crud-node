@@ -1,6 +1,6 @@
-const { MongoClient } = require('mongodb');
-const config = require('./config/default.json');
+import { MongoClient } from 'mongodb';
 
-const client = new MongoClient(config.db.uri);
+let client;
 
-module.exports = client;
+export const initClient = uri => client = new MongoClient(uri);
+export const getClient = () => client;
