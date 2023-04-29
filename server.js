@@ -1,9 +1,6 @@
 import { createServer } from 'http';
+import handleRequest from './request_handler';
 
-const server = createServer((req, res) => {
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'text/plain')
-    res.end("Hello, World!")
-});
+const server = createServer(handleRequest);
 
 export default server;

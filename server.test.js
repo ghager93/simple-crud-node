@@ -14,5 +14,6 @@ test('checks server object', () => {
 });
 
 test('checks db client object', () => {
+    const client = getClient();
     expect(client).toBeInstanceOf(MongoClient);
 })
