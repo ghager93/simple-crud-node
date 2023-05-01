@@ -1,4 +1,4 @@
-import helloworld from "./routes/helloworld";
+import helloworld from "./api/helloworld";
 
 const handleRequest = (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`)

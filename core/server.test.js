@@ -2,7 +2,7 @@ import server from './server.js';
 import { Server } from 'http';
 import { MongoClient } from 'mongodb';
 import { initClient, getClient } from './db.js';
-import config from './config/default.json' assert {type: 'json'};
+import config from '../config/default.json' assert {type: 'json'};
 
 beforeEach(() => {
     initClient(config.db.test_uri);
