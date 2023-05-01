@@ -1,5 +1,5 @@
-import server from './server.js';
-import { initClient, getClient } from './db.js';
+import server from './core/server.js';
+import { initClient, getClient } from './core/db.js';
 import config from './config/default.json' assert { type: 'json' };
 
 async function listDatabases(client) {
