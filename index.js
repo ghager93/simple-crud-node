@@ -25,7 +25,7 @@ async function main() {
 }
 
 server.listen(config.server.port, config.server.host, () => {
-    console.log(`Server running at ${config.db.uri}/`)
+    console.log(`Server running at ${config.server.host}:${config.server.port}/`)
 })
 
 main().catch(console.error)
