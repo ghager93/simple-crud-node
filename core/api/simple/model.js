@@ -1,4 +1,3 @@
-import { json } from "body-parser";
 import simpleSchema from "./schema";
 
 class simpleModel {
