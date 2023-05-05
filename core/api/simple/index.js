@@ -15,10 +15,12 @@ const createSimple = (req, res) => {
     req.on('data', chunk => chunks.push(chunk))
     req.on('end', async () => {
         const client = getClient();
-        const body = JSON.parse(Buffer.concat(chunks))
-        const simple = new simpleModel(body);
-
+        const bodyString = chunks.length > 0 ? Buffer.concat(chunks): '{}';
+        const body = JSON.parse(bodyString);
+        
         try {
+            const simple = new simpleModel(body);
+
             await client.connect();
             await client.db('simpleCrudNode').collection('simple').insertOne(simple)
             res.statusCode = 200
@@ -28,7 +30,7 @@ const createSimple = (req, res) => {
         catch(err) {
             res.statusCode = 404;
             res.setHeader('Content-Type', 'application/json')
-            res.end(err.name + ": " + err.message);
+            res.end(`{"Error": "${err.name}: ${err.message}"}`);
         }
         finally {
             await client.close()

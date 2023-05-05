@@ -6,7 +6,6 @@ import config from '../config/default.json' assert {type: 'json'};
 
 beforeEach(() => {
     initClient(config.db.test_uri);
-    const client = getClient();
 });
 
 test('checks server object', () => {

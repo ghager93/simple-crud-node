@@ -2,13 +2,13 @@ import simpleSchema from "./schema";
 
 class simpleModel {
     constructor({name, number}) {
-        number = Number(number)
         if(name === undefined) {
             throw SyntaxError('Must include name.')
         }
         if(number === undefined) {
             throw SyntaxError('Must include number.')
         }
+        number = Number(number)
         if(typeof(name) !== simpleModel.schema.name) {
             throw TypeError(`Name must be ${simpleModel.schema.name}`)
         }
