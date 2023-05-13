@@ -1,11 +1,12 @@
 import server from './server.js';
 import { Server } from 'http';
 import { MongoClient } from 'mongodb';
-import { initClient, getClient } from './db.js';
+import { initClient, getClient, initDb } from './db.js';
 import config from '../config/default.json' assert {type: 'json'};
 
 beforeEach(() => {
     initClient(config.db.test_uri);
+    initDb('simpleCrudNode', 'testSimple');
 });
 
 test('checks server object', () => {

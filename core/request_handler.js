@@ -2,7 +2,7 @@ import helloworld from "./api/helloworld";
 import handleSimple from "./api/simple";
 
 const handleRequest = (req, res) => {
-    const url = new URL(req.url, `http://${req.headers.host}`)
+    const url = new URL(req.url )
     switch (url.pathname) {
         case '/api/helloworld':
             helloworld(req, res);

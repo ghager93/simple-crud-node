@@ -1,17 +1,21 @@
 import request from "supertest";
 import server from "../core/server";
-import { initClient, getClient } from "../core/db";
+import { initClient, getClient, initDb, dbName, collName } from "../core/db";
 import config from '../config/default.json' assert { type: 'json' };
+import assert from 'node:assert/strict';
 
-beforeAll(() => {
-    initClient(config.db.test_uri)
+beforeEach(() => {
+    initClient(config.db.test_uri);
+    initDb('simpleCrudNode', 'testSimple');
 })
 
-afterAll(async () => {
+afterEach(async () => {
+    console.log('db cleared')
 	await new Promise(resolve => setTimeout(() => resolve(), 500)); // avoid jest open handle error
 
     const client = getClient()
-    await client.db('simpleCrudNode').dropDatabase();
+    await client.connect()
+    await client.db(dbName).collection(collName).deleteMany({});
     await client.close()    
 });
 
@@ -36,19 +40,53 @@ describe('POST /simple', () => {
             })
     });
 
-    it('returns 200 for valid payload', function () {
+    it('returns 200 for valid payload', async function () {
+        console.log('before post')
+        request(server)
+            .post('/api/simple')
+            .send({"name": "test from api.test", "number": 123})
+            .expect(200)
+            .end(async (err, res) => {
+                if(err) throw err;
+            });
+
+    })
+
+    it('saves valid payload to db', async function () {
         request(server)
             .post('/api/simple')
             .send({"name": "test", "number": 123})
+            .expect(200)
+            .end(async (err, res) => {
+                if(err) throw err;
+                console.log('after post')
+
+                const client = getClient();
+                await client.connect()
+                const result = await client.db(dbName).collection(collName).find().toArray();
+                assert.equal(result[0].name, 'test')
+                assert.equal(result[0].number, 123)
+            });
+    })
+});
+
+describe('GET /simple - all', () => {
+    it('returns 200', () => {
+        request(server)
+            .get('/api/simple')
             .expect(200)
             .end((err, res) => {
                 if(err) throw err;
             });
     })
 
-    it('saves valid payload to db', async function () {
-        const client = getClient();
-        const res = client.db('simpleCrudNode').find()
-        console.log(res)
+    it('returns empty list if no entries', () => {
+        request(server)
+            .get('/api/simple')
+            .expect(200, '[]')
+            .end((err, res) => {
+                console.log(res.body)
+                if(err) throw err;
+            })
     })
-});
+})
