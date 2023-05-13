@@ -32,9 +32,16 @@ const createSimple = (req, res) => {
             res.end(JSON.stringify(simple))
         }
         catch(err) {
-            res.statusCode = 404;
-            res.setHeader('Content-Type', 'application/json')
-            res.end(`{"Error": "${err.name}: ${err.message}"}`);
+            if(err instanceof SyntaxError || err instanceof TypeError) {
+                res.statusCode = 400
+                res.setHeader('Content-Type', 'application/json')
+                res.end(`{"Error": "${err.name}: ${err.message}"}`)
+            } else {
+                console.log(err.name)
+                res.statusCode = 404;
+                res.setHeader('Content-Type', 'application/json')
+                res.end(`{"Error": "${err.name}: ${err.message}"}`);
+            }
         }
         finally {
             await client.close()

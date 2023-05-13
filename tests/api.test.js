@@ -10,7 +10,6 @@ beforeEach(() => {
 })
 
 afterEach(async () => {
-    console.log('db cleared')
 	await new Promise(resolve => setTimeout(() => resolve(), 500)); // avoid jest open handle error
 
     const client = getClient()
@@ -41,7 +40,6 @@ describe('POST /simple', () => {
     });
 
     it('returns 200 for valid payload', async function () {
-        console.log('before post')
         request(server)
             .post('/api/simple')
             .send({"name": "test from api.test", "number": 123})
@@ -59,7 +57,6 @@ describe('POST /simple', () => {
             .expect(200)
             .end(async (err, res) => {
                 if(err) throw err;
-                console.log('after post')
 
                 const client = getClient();
                 await client.connect()
@@ -67,6 +64,30 @@ describe('POST /simple', () => {
                 assert.equal(result[0].name, 'test')
                 assert.equal(result[0].number, 123)
             });
+    })
+
+    it('returns 400 for invalid payload', async () => {
+        request(server)
+            .post('/api/simple')
+            .send({'not_name': 'test', 'number': 123})
+            .expect(400)
+            .end((err, res) => {
+                if(err) throw err;
+            })
+    })
+
+    it('does not save invalid payload to db', async () => {
+        request(server)
+            .post('/api/simple')
+            .send({'not_name': 'test', 'number': 123})
+            .end(async (err, res) => {
+                if(err) throw err;
+                
+                const client = getClient();
+                await client.connect()
+                const result = await client.db(dbName).collection(collName).find().toArray();
+                assert.equal(result.length, 0)
+            })        
     })
 });
 
@@ -85,7 +106,6 @@ describe('GET /simple - all', () => {
             .get('/api/simple')
             .expect(200, '[]')
             .end((err, res) => {
-                console.log(res.body)
                 if(err) throw err;
             })
     })
