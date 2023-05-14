@@ -144,3 +144,50 @@ describe('GET /simple - all', () => {
             })
     })
 })
+
+describe('GET /simple - by ID', () => {
+    it('returns 200 for existing ID', async () => {
+        const client = getClient();
+        await client.connect();
+        await client.db(dbName).collection(collName).insertOne(
+            {"_id": 0, "name": "test", "number": 123}
+        )
+        request(server)
+            .get('/api/simple?id=0')
+            .expect(200)
+            .end((err, res) => {
+                if(err) throw err;
+                assert.equal(res.body.length, 1)
+            })
+    })
+
+    it('returns 404 for non-existing ID', async () => {
+        const client = getClient();
+        await client.connect();
+        await client.db(dbName).collection(collName).insertOne(
+            {"_id": 0, "name": "test", "number": 123}
+        )
+        request(server)
+            .get('/api/simple?id=1')
+            .expect(404)
+    })
+
+    it('returns correct entry', async () => {
+        const client = getClient();
+        await client.connect();
+        await client.db(dbName).collection(collName).insertMany(
+            [
+                {"_id": 0, "name": "test", "number": 123},
+                {"_id": 1, "name": "test1", "number": 456}
+            ]
+        )
+        request(server)
+            .get('/api/simple?id=1')
+            .expect(200)
+            .end((err, res) => {
+                if(err) throw err;
+                assert.equal(res.body[0].name, "test1")
+                assert.equal(res.body[0].number, 456)
+            })
+    })
+ })
