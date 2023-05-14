@@ -149,11 +149,12 @@ describe('GET /simple - by ID', () => {
     it('returns 200 for existing ID', async () => {
         const client = getClient();
         await client.connect();
+        const entry = {"name": "test", "number": 123}
         await client.db(dbName).collection(collName).insertOne(
-            {"_id": 0, "name": "test", "number": 123}
+            entry
         )
         request(server)
-            .get('/api/simple?id=0')
+            .get(`/api/simple?id=${entry._id}`)
             .expect(200)
             .end((err, res) => {
                 if(err) throw err;
@@ -164,25 +165,31 @@ describe('GET /simple - by ID', () => {
     it('returns 404 for non-existing ID', async () => {
         const client = getClient();
         await client.connect();
+
+        const entry = {"name": "test", "number": 123}
+
         await client.db(dbName).collection(collName).insertOne(
-            {"_id": 0, "name": "test", "number": 123}
+            entry
         )
         request(server)
-            .get('/api/simple?id=1')
+            .get(`/api/simple?id=${entry._id + 1}`)
             .expect(404)
     })
 
     it('returns correct entry', async () => {
         const client = getClient();
         await client.connect();
+
+        const entries = [
+            {"name": "test", "number": 123},
+            {"name": "test1", "number": 456}
+        ]
+
         await client.db(dbName).collection(collName).insertMany(
-            [
-                {"_id": 0, "name": "test", "number": 123},
-                {"_id": 1, "name": "test1", "number": 456}
-            ]
+            entries
         )
         request(server)
-            .get('/api/simple?id=1')
+            .get(`/api/simple?id=${entries[1]._id}`)
             .expect(200)
             .end((err, res) => {
                 if(err) throw err;
