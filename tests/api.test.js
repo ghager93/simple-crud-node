@@ -109,4 +109,38 @@ describe('GET /simple - all', () => {
                 if(err) throw err;
             })
     })
+
+    it('returns list with single entry', async () => {
+        const client = getClient();
+        await client.connect();
+        await client.db(dbName).collection(collName).insertOne({"name": "test", "number": 123})
+        request(server)
+            .get('/api/simple')
+            .expect(200)
+            .end((err, res) => {
+                if(err) throw err;
+
+                assert.equal(res.body.length, 1)
+                assert.equal(res.body[0].name, 'test')
+                assert.equal(res.body[0].number, 123)
+            })
+    })
+
+    it('returns list with 3 entries', async () => {
+        const client = getClient();
+        await client.connect();
+        await client.db(dbName).collection(collName).insertMany([
+            {"name": "test0", "number": 123},
+            {"name": "test1", "number": 123},
+            {"name": "test2", "number": 123}
+        ])
+        request(server)
+            .get('/api/simple')
+            .expect(200)
+            .end((err, res) => {
+                if(err) throw err;
+
+                assert.equal(res.body.length, 3)
+            })
+    })
 })
