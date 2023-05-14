@@ -198,3 +198,60 @@ describe('GET /simple - by ID', () => {
             })
     })
  })
+
+ describe('DELETE /simple', () => {
+    it('returns 200 for existing ID', async () => {
+        const client = getClient();
+        await client.connect();
+        const entry = {"name": "test", "number": 123}
+        await client.db(dbName).collection(collName).insertOne(
+            entry
+        )
+        request(server)
+            .delete(`/api/simple?id=${entry._id}`)
+            .expect(200)
+            .end((err, res) => {
+                if(err) throw err;
+            })        
+    })
+    
+    it('returns 404 for non-existing ID', async () => {
+        const client = getClient();
+        await client.connect();
+
+        const entry = {"name": "test", "number": 123}
+
+        await client.db(dbName).collection(collName).insertOne(
+            entry
+        )
+        request(server)
+            .delete(`/api/simple?id=${entry._id + 1}`)
+            .expect(404)
+    })
+
+    it('deletes correct entry', async () => {
+        const client = getClient();
+        await client.connect();
+
+        const entries = [
+            {"name": "test", "number": 123},
+            {"name": "test1", "number": 456}
+        ]
+
+        await client.db(dbName).collection(collName).insertMany(
+            entries
+        )
+        request(server)
+            .delete(`/api/simple?id=${entries[1]._id}`)
+            .expect(200)
+            .end(async (err, res) => {
+                if(err) throw err;
+
+                const client = getClient();
+                await client.connect()
+                const result = await client.db(dbName).collection(collName).find().toArray();
+                assert.equal(result.length, 1)
+                assert.equal(result[0].name, "test")
+            })
+    })
+ })
