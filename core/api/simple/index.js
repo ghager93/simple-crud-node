@@ -65,10 +65,17 @@ const getSimpleById = async (req, res) => {
     const cursor = await client.db(dbName).collection(collName).find(
         new ObjectId(req.id)
     );
-
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(await cursor.toArray()));
+    const cursorArray = await cursor.toArray()
+    if(cursorArray.length === 0) {
+        res.statusCode = 404
+        res.setHeader('Content-Type', 'application/json');
+        res.end('{"Error": "ID does not exist"}');
+    }
+    else {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(cursorArray));
+    }
 }
 
 const getSimple = async (req, res) => {
@@ -81,7 +88,18 @@ const getSimple = async (req, res) => {
     else {
         getSimpleAll(req, res);
     }
+}
 
+const deleteSimple = async (req, res) => {
+    const client = getClient();
+    await client.connect();
+    const cursor = await client.db(dbName).collection(collName).deleteOne(
+        new ObjectId(req.id)
+    );
+
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.end('Entry deleted.')
 }
 
 export default handleSimple;
