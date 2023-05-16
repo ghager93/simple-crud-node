@@ -10,6 +10,8 @@ const handleSimple = (req, res) => {
             return createSimple(req, res);
         case 'GET':
             return getSimple(req, res);
+        case 'DELETE':
+            return deleteSimple(req, res);
     }
 }
 
@@ -91,15 +93,26 @@ const getSimple = async (req, res) => {
 }
 
 const deleteSimple = async (req, res) => {
+    const url = new URL(req.url, `http://${req.headers.host}`)
+    const id = url.searchParams.get('id')
+
     const client = getClient();
     await client.connect();
-    const cursor = await client.db(dbName).collection(collName).deleteOne(
-        new ObjectId(req.id)
+    const cursor = await client.db(dbName).collection(collName).findOneAndDelete(
+        {"_id": new ObjectId(id)}
     );
 
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.end('Entry deleted.')
+    const result = cursor.value;
+    if(result === null) {
+        res.statusCode = 404
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({"Error": "ID does not exist."}))
+    }
+    else {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(JSON.stringify(result))
+    }
 }
 
 export default handleSimple;

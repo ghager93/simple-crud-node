@@ -176,54 +176,54 @@ describe('GET /simple - by ID', () => {
     })
  })
 
-//  describe('DELETE /simple', () => {
-//     it('returns 200 for existing ID', async () => {
-//         const client = getClient();
-//         await client.connect();
-//         const entry = {"name": "test", "number": 123}
-//         await client.db(dbName).collection(collName).insertOne(
-//             entry
-//         )
+describe('DELETE /simple', () => {
+    it('returns 200 for existing ID', async () => {
+        const client = getClient();
+        await client.connect();
+        const entry = {"name": "test", "number": 123}
+        await client.db(dbName).collection(collName).insertOne(
+            entry
+        )
         
-//         await request(server)
-//             .delete(`/api/simple?id=${entry._id}`)
-//             .expect(200)
-//     })
+        await request(server)
+            .delete(`/api/simple?id=${entry._id}`)
+            .expect(200)
+    })
     
-//     it('returns 404 for non-existing ID', async () => {
-//         const client = getClient();
-//         await client.connect();
+    it('returns 404 for non-existing ID', async () => {
+        const client = getClient();
+        await client.connect();
 
-//         const entry = {"name": "test", "number": 123}
+        const entry = {"name": "test", "number": 123}
 
-//         await client.db(dbName).collection(collName).insertOne(
-//             entry
-//         )
+        await client.db(dbName).collection(collName).insertOne(
+            entry
+        )
 
-//         await request(server)
-//             .delete(`/api/simple?id=${entry._id + 1}`)
-//             .expect(404)
-//     })
+        await request(server)
+            .delete(`/api/simple?id=${new ObjectId(32)}`)
+            .expect(404)
+    })
 
-//     it('deletes correct entry', async () => {
-//         const client = getClient();
-//         await client.connect();
+    it('deletes correct entry', async () => {
+        const client = getClient();
+        await client.connect();
 
-//         const entries = [
-//             {"name": "test", "number": 123},
-//             {"name": "test1", "number": 456}
-//         ]
+        const entries = [
+            {"name": "test", "number": 123},
+            {"name": "test1", "number": 456}
+        ]
 
-//         await client.db(dbName).collection(collName).insertMany(
-//             entries
-//         )
+        await client.db(dbName).collection(collName).insertMany(
+            entries
+        )
         
-//         const res = await request(server)
-//             .delete(`/api/simple?id=${entries[1]._id}`)
-//             .expect(200)
+        const res = await request(server)
+            .delete(`/api/simple?id=${entries[1]._id}`)
+            .expect(200)
   
-//         const result = await client.db(dbName).collection(collName).find().toArray();
-//         assert.equal(result.length, 1)
-//         assert.equal(result[0].name, "test")
-//     })
-//  })
+        const result = await client.db(dbName).collection(collName).find().toArray();
+        assert.equal(result.length, 1)
+        assert.equal(result[0].name, "test")
+    })
+ })
