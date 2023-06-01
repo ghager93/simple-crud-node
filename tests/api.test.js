@@ -227,3 +227,74 @@ describe('DELETE /simple', () => {
         assert.equal(result[0].name, "test")
     })
  })
+
+ describe('PATCH /simple', () => {
+    it('returns 200 for valid id', async () => {
+        const client = getClient();
+        await client.connect();
+        const entry = {"name": "test", "number": 123}
+        await client.db(dbName).collection(collName).insertOne(
+            entry
+        )
+
+        await request(server)
+            .patch(`/api/simple?id=${entry._id}`)
+            .expect(200);
+    })
+
+    it('returns 404 for non-existing ID', async () => {
+        const client = getClient();
+        await client.connect();
+
+        const entry = {"name": "test", "number": 123}
+
+        await client.db(dbName).collection(collName).insertOne(
+            entry
+        )
+
+        await request(server)
+            .patch(`/api/simple?id=${new ObjectId(32)}`)
+            .send({"name": "different"})
+            .expect(404)
+    })
+
+    it('correctly patches name', async () => {
+        const client = getClient();
+        await client.connect();
+
+        const entry = {"name": "test", "number": 123}
+
+        await client.db(dbName).collection(collName).insertOne(
+            entry
+        )
+        
+        await request(server)
+            .patch(`/api/simple?id=${entry._id}`)
+            .send({"name": "different"})
+            .expect(200)
+
+        const result = await client.db(dbName).collection(collName).find().toArray();
+        assert.equal(result.length, 1)
+        assert.equal(result[0].name, "different")       
+    })
+
+    it('correctly patches name', async () => {
+        const client = getClient();
+        await client.connect();
+
+        const entry = {"name": "test", "number": 123}
+
+        await client.db(dbName).collection(collName).insertOne(
+            entry
+        )
+        
+        await request(server)
+            .patch(`/api/simple?id=${entry._id}`)
+            .send({"number": 456})
+            .expect(200)
+
+        const result = await client.db(dbName).collection(collName).find().toArray();
+        assert.equal(result.length, 1)
+        assert.equal(result[0].number, 456)       
+    })
+ })

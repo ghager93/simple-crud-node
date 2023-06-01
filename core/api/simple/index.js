@@ -12,6 +12,8 @@ const handleSimple = (req, res) => {
             return getSimple(req, res);
         case 'DELETE':
             return deleteSimple(req, res);
+        case 'PATCH':
+            return patchSimple(req, res);
     }
 }
 
@@ -113,6 +115,41 @@ const deleteSimple = async (req, res) => {
         res.setHeader('Content-Type', 'application/json');
         res.end(JSON.stringify(result))
     }
+}
+
+const patchSimple = async (req, res) => {
+    const url = new URL(req.url, `http://${req.headers.host}`)
+    const id = url.searchParams.get('id')
+    const chunks = []
+    
+    req.on('data', chunk => chunks.push(chunk))
+    req.on('end', async () => {
+        const client = getClient();
+        await client.connect();
+        const bodyString = chunks.length > 0 ? Buffer.concat(chunks): '{}';
+        const body = JSON.parse(bodyString);
+        if(Object.keys(body).length === 0) {
+            res.statusCode = 200
+            res.setHeader('Content-Type', 'application/json')
+            res.end('{"result": "nothing to patch"}')
+        }
+        else {
+            const updateRes = await client.db(dbName).collection(collName).updateOne(
+                { "_id": new ObjectId(id)},
+                { $set: body }
+            )
+            if(updateRes.matchedCount === 0) {
+                res.statusCode = 404
+                res.setHeader('Content-Type', 'application/json')
+                res.end(JSON.stringify({"Error": "ID does not exist."}))
+            }
+            else {
+                res.statusCode = 200
+                res.setHeader('Content-Type', 'application/json')
+                res.end('{"result": "entry patched"}')
+            }
+        }
+    })
 }
 
 export default handleSimple;
